@@ -3,7 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Pomme · growth garden</title>
+  <meta name="theme-color" content="#1f4a2c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Rummān · growth garden</title>
+
+  <!-- ========== WEB ICONS (external SVG files) ========== -->
+  <link rel="icon" type="image/svg+xml" sizes="64x64" href="favicon.svg">
+  <link rel="shortcut icon" href="favicon.svg">
+  <link rel="apple-touch-icon" sizes="512x512" href="icon.svg">
+
+  <!-- PWA manifest (inline, references the SVG files) -->
+  <link rel="manifest" href='data:application/manifest+json,{
+    "name": "Rummān · Growth Garden",
+    "short_name": "Rummān",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#faf8f2",
+    "theme_color": "#1f4a2c",
+    "orientation": "portrait",
+    "icons": [
+      { "src": "favicon.svg", "sizes": "64x64", "type": "image/svg+xml", "purpose": "any" },
+      { "src": "icon.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
+    ]
+  }'>
+
   <style>
     * {
       margin: 0;
@@ -19,6 +44,12 @@
       justify-content: center;
       min-height: 100vh;
       padding: 8px 0;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(31,74,44,0.025) 0 2px, transparent 2px),
+        radial-gradient(circle at 80% 60%, rgba(201,162,39,0.03) 0 3px, transparent 3px),
+        linear-gradient(45deg, rgba(31,74,44,0.015) 25%, transparent 25%, transparent 75%, rgba(31,74,44,0.015) 75%),
+        linear-gradient(-45deg, rgba(31,74,44,0.015) 25%, transparent 25%, transparent 75%, rgba(31,74,44,0.015) 75%);
+      background-size: 40px 40px, 60px 60px, 24px 24px, 24px 24px;
     }
 
     #app {
@@ -34,7 +65,66 @@
       position: relative;
     }
 
-    /* main scrollable area */
+    /* ---- WIDGET MODE ---- */
+    body.widget-mode {
+      background: transparent;
+      padding: 0;
+      align-items: flex-start;
+      justify-content: flex-start;
+      background-image: none;
+    }
+    body.widget-mode #app {
+      max-width: 100%;
+      height: auto;
+      border-radius: 24px;
+      box-shadow: none;
+      background: #faf8f2;
+      overflow: hidden;
+    }
+    body.widget-mode .bottom-nav,
+    body.widget-mode .page-container { display: none; }
+    body.widget-mode #widgetRoot { display: flex; }
+
+    /* ---- WIDGET STYLES ---- */
+    #widgetRoot {
+      display: none;
+      width: 100%;
+      min-height: 160px;
+      padding: 14px 16px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      background: linear-gradient(180deg, #faf8f2 0%, #eef3ea 100%);
+      border-radius: 24px;
+      position: relative;
+    }
+    #widgetRoot::before {
+      content: "☪";
+      position: absolute;
+      top: 6px; right: 10px;
+      font-size: 14px;
+      color: #c9a227;
+      opacity: 0.7;
+    }
+    #widgetRoot .w-plant { width: 90px; height: 90px; }
+    #widgetRoot .w-count {
+      font-size: 13px;
+      color: #1f4a2c;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+    #widgetRoot .w-sub {
+      font-size: 11px;
+      color: #8b9a7e;
+      margin-top: -2px;
+    }
+    #widgetRoot:active { background: #eef3ea; }
+
+    /* ---- MAIN APP ---- */
     .page-container {
       flex: 1;
       overflow-y: auto;
@@ -42,11 +132,8 @@
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
-    .page-container::-webkit-scrollbar {
-      display: none;
-    }
+    .page-container::-webkit-scrollbar { display: none; }
 
-    /* bottom nav */
     .bottom-nav {
       display: flex;
       justify-content: space-around;
@@ -72,32 +159,44 @@
       padding: 6px 18px;
       border-radius: 40px;
     }
-    .nav-item.active {
-      color: #2d5e3b;
-      font-weight: 600;
-    }
-    .nav-item svg {
-      width: 24px;
-      height: 24px;
-      stroke: currentColor;
-      stroke-width: 1.8;
-      fill: none;
-    }
+    .nav-item.active { color: #1f4a2c; font-weight: 600; }
+    .nav-item svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 1.8; fill: none; }
 
-    /* typography & common */
-    h1, h2, h3 {
-      font-weight: 500;
-      letter-spacing: -0.02em;
-    }
+    h1, h2, h3 { font-weight: 500; letter-spacing: -0.02em; }
     .page-title {
       font-size: 26px;
-      color: #2c4a2e;
+      color: #1f4a2c;
       margin-bottom: 16px;
       font-weight: 600;
       display: flex;
       align-items: center;
       gap: 8px;
     }
+    .page-title .arabic {
+      font-size: 20px;
+      color: #c9a227;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .bismillah {
+      text-align: center;
+      font-size: 15px;
+      color: #1f4a2c;
+      padding: 8px 0 14px;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+      opacity: 0.9;
+      position: relative;
+    }
+    .bismillah::after {
+      content: "✦";
+      display: block;
+      color: #c9a227;
+      font-size: 11px;
+      margin-top: 4px;
+      letter-spacing: 8px;
+    }
+
     .card {
       background: white;
       border-radius: 28px;
@@ -107,17 +206,17 @@
       border: 1px solid #efede7;
     }
     .btn-soft {
-      background: #e7f0e5;
+      background: #e3ecdf;
       border: none;
       border-radius: 40px;
       padding: 10px 18px;
       font-size: 14px;
       font-weight: 500;
-      color: #2d5e3b;
+      color: #1f4a2c;
       cursor: pointer;
       transition: background 0.2s;
     }
-    .btn-soft:active { background: #d6e6d2; }
+    .btn-soft:active { background: #d0e0c9; }
     .btn-outline {
       background: transparent;
       border: 1.5px solid #cbd9c4;
@@ -129,13 +228,26 @@
       cursor: pointer;
     }
 
-    /* Plant area */
     .plant-stage {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 6px 0 4px;
+      position: relative;
+    }
+    .plant-stage::before {
+      content: "رُمَّان";
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 30px;
+      color: #c9a227;
+      opacity: 0.08;
+      pointer-events: none;
+      letter-spacing: 4px;
+      font-weight: 600;
     }
     .plant-svg-container {
       width: 200px;
@@ -143,6 +255,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
+      z-index: 1;
     }
     .growth-stats {
       display: flex;
@@ -151,19 +265,20 @@
       margin-top: 6px;
       margin-bottom: 8px;
     }
-    .stat {
-      text-align: center;
-    }
+    .stat { text-align: center; }
     .stat-label {
       font-size: 12px;
       color: #7c8f74;
       letter-spacing: 0.3px;
     }
-    .stat-value {
-      font-size: 20px;
-      font-weight: 600;
-      color: #2d4a2e;
+    .stat-label small {
+      display: block;
+      font-size: 9px;
+      color: #c9a227;
+      margin-top: 2px;
+      letter-spacing: 1px;
     }
+    .stat-value { font-size: 20px; font-weight: 600; color: #1f4a2c; }
     .action-buttons {
       display: flex;
       gap: 10px;
@@ -175,11 +290,7 @@
       border: 1.5px solid #e0d9cf;
       color: #9c7c5b;
     }
-    .filter-row {
-      display: flex;
-      gap: 8px;
-      margin: 12px 0 10px;
-    }
+    .filter-row { display: flex; gap: 8px; margin: 12px 0 10px; }
     .filter-chip {
       background: #eae8e1;
       border: none;
@@ -190,10 +301,7 @@
       color: #5d6b55;
       cursor: pointer;
     }
-    .filter-chip.active {
-      background: #2d5e3b;
-      color: white;
-    }
+    .filter-chip.active { background: #1f4a2c; color: white; }
     .task-item {
       display: flex;
       align-items: center;
@@ -214,34 +322,17 @@
       flex-shrink: 0;
       background: white;
     }
-    .task-check.completed {
-      background: #2d5e3b;
-      border-color: #2d5e3b;
-    }
-    .task-check.completed svg {
-      stroke: white;
-      width: 16px;
-      height: 16px;
-    }
+    .task-check.completed { background: #1f4a2c; border-color: #1f4a2c; }
+    .task-check.completed svg { stroke: white; width: 16px; height: 16px; }
     .task-info { flex: 1; }
-    .task-title {
-      font-weight: 500;
-      color: #2c3e2b;
-      font-size: 15px;
-    }
-    .task-meta {
-      font-size: 12px;
-      color: #8b9a7e;
-      display: flex;
-      gap: 8px;
-      margin-top: 4px;
-    }
+    .task-title { font-weight: 500; color: #2c3e2b; font-size: 15px; }
+    .task-meta { font-size: 12px; color: #8b9a7e; display: flex; gap: 8px; margin-top: 4px; }
     .mission-badge {
       background: #e3ece1;
       padding: 2px 10px;
       border-radius: 30px;
       font-size: 11px;
-      color: #35603b;
+      color: #1f4a2c;
     }
     .empty-message {
       text-align: center;
@@ -249,11 +340,15 @@
       padding: 24px 0;
       font-style: italic;
     }
-
-    /* forms & tasks page */
-    .form-group {
-      margin-bottom: 16px;
+    .empty-message .arabic {
+      display: block;
+      font-style: normal;
+      color: #c9a227;
+      font-size: 18px;
+      margin-bottom: 6px;
+      letter-spacing: 2px;
     }
+    .form-group { margin-bottom: 16px; }
     .form-group label {
       font-size: 13px;
       color: #4f604b;
@@ -274,10 +369,7 @@
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
       border-color: #7f9e7a;
     }
-    .form-group textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
+    .form-group textarea { min-height: 80px; resize: vertical; }
     .mission-list .mission-card {
       background: white;
       border-radius: 24px;
@@ -285,6 +377,16 @@
       margin-bottom: 14px;
       border: 1px solid #efede7;
       box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+      position: relative;
+    }
+    .mission-list .mission-card::before {
+      content: "☪";
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 13px;
+      color: #c9a227;
+      opacity: 0.5;
     }
     .progress-bar-bg {
       background: #e4ece1;
@@ -295,25 +397,78 @@
     }
     .progress-bar-fill {
       height: 8px;
-      background: #467a4e;
+      background: linear-gradient(90deg, #1f4a2c, #467a4e);
       border-radius: 30px;
       width: 0%;
     }
+    .icon-btn { background: none; border: none; font-size: 18px; cursor: pointer; padding: 4px 8px; }
 
-    .icon-btn {
-      background: none;
-      border: none;
+    .verse-card {
+      background: linear-gradient(135deg, #f4f7ef 0%, #e8efe3 100%);
+      border-left: 3px solid #c9a227;
+    }
+    .verse-card .arabic {
       font-size: 18px;
+      color: #1f4a2c;
+      text-align: right;
+      direction: rtl;
+      margin-bottom: 8px;
+      line-height: 1.7;
+    }
+    .verse-card .translation {
+      font-size: 13px;
+      color: #4f604b;
+      font-style: italic;
+      line-height: 1.5;
+    }
+    .verse-card .ref {
+      font-size: 11px;
+      color: #c9a227;
+      margin-top: 6px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    #installBanner {
+      position: fixed;
+      bottom: 76px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f4a2c;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 40px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 6px 20px rgba(31, 74, 44, 0.3);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 100;
       cursor: pointer;
-      padding: 4px 8px;
+      max-width: 92%;
+    }
+    #installBanner button {
+      background: rgba(201,162,39,0.35);
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 <div id="app">
-  <div class="page-container" id="pageContainer">
-    <!-- Home page will be injected dynamically -->
+  <div id="widgetRoot" role="button" aria-label="Open tasks">
+    <div class="w-plant" id="wPlant"></div>
+    <div class="w-count" id="wCount">0 tasks pending</div>
+    <div class="w-sub">tap to open list</div>
   </div>
+
+  <div class="page-container" id="pageContainer"></div>
   <nav class="bottom-nav">
     <button class="nav-item active" data-page="home">
       <svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9-9 9-9-9z" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -328,45 +483,42 @@
       Missions
     </button>
   </nav>
+
+  <div id="installBanner">
+    ☪ Install Rummān on your home screen
+    <button id="installBtn">Install</button>
+  </div>
 </div>
 
 <script>
   // ---------- DATA & STATE ----------
-  const STORAGE_KEY = 'pomme_growth_app_v1';
+  const STORAGE_KEY = 'rumman_growth_app_v1';
 
   const defaultMissions = [
     { id: 'm1', name: 'NMZ KREATIF', description: 'Build and grow a professional training centre and creative business.' },
     { id: 'm2', name: 'BAYUONE', description: "Develop a platform connecting Sabah's trainers, talents, opportunities, and communities." },
-    { id: 'm3', name: 'RUQYAH SYARIYYAH', description: 'Develop knowledge and practical skills in Quranic learning, Islamic knowledge, and Ruqyah Syar\'iyyah.' },
+    { id: 'm3', name: 'RUQYAH SYARIYYAH', description: "Develop knowledge and practical skills in Quranic learning, Islamic knowledge, and Ruqyah Syar'iyyah." },
   ];
 
   let state = {
     missions: [],
     tasks: [],
-    completedCount: 0,      // tasks completed (affects plant)
-    pomegranates: 0,        // extra fruits after stage 5
-    // we store growth as completedCount directly, plant stage derived.
+    completedCount: 0,
+    pomegranates: 0,
   };
 
-  // Load or initialize
   function loadState() {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
         state = { ...state, ...parsed };
-        // ensure missions array exists
-        if (!state.missions || !Array.isArray(state.missions)) state.missions = [];
-        if (!state.tasks) state.tasks = [];
-        // if empty missions, add defaults
-        if (state.missions.length === 0) {
+        if (!state.missions || !Array.isArray(state.missions) || state.missions.length === 0) {
           state.missions = defaultMissions.map(m => ({ ...m }));
         }
-        // ensure completedCount matches actual completed tasks
+        if (!state.tasks) state.tasks = [];
         syncCompletedCountFromTasks();
-      } catch (e) {
-        resetToDefault();
-      }
+      } catch (e) { resetToDefault(); }
     } else {
       resetToDefault();
     }
@@ -379,37 +531,19 @@
       completedCount: 0,
       pomegranates: 0,
     };
-    // add a couple of sample tasks to demonstrate growth? optional, but will start fresh.
-    // we'll leave empty for clean start, but may want to auto-add? No, better empty.
     saveState();
   }
 
   function syncCompletedCountFromTasks() {
-    const completed = state.tasks.filter(t => t.completed).length;
-    // But we also want to keep plant growth = number of completions *ever* (undo decreases)
-    // Our model: state.completedCount = total completed tasks count (should equal completed tasks length)
-    // But we also have pomegranates for extra fruit beyond 5 stages? Actually we track growth by completedCount.
-    // We'll use completedCount as the number of tasks completed (affects plant). We'll recalc from tasks.
-    // However if we undo, we reduce completedCount and also mark a task incomplete.
-    // So we must ensure consistency: completedCount should equal number of completed tasks.
-    // But we also want to keep pomegranates separate for visuals? Actually pomegranates = max(0, completedCount - 10) maybe?
-    // Simpler: plant stage based on completedCount; additional fruits after 10 completions.
-    // We'll keep completedCount in sync with tasks.
     state.completedCount = state.tasks.filter(t => t.completed).length;
-    // pomegranates = max(0, completedCount - 10) but we store it for quick access, however it's derived.
-    // we'll derive in render.
   }
 
   function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    try { localStorage.setItem('rumman_widget_ping', Date.now().toString()); } catch(e){}
   }
 
-  // helper to get plant stage (1-5)
   function getPlantStage(completed) {
-    if (completed === 0) return 1;
-    if (completed <= 2) return 1; // seed stage until 1? Actually stage1: seed (0-1 tasks?), better:
-    // stage 1: seed (0-1 tasks), stage2: sprout (2-3), stage3: growing (4-6), stage4: mature (7-9), stage5: fruitful (10+)
-    // Let's define:
     if (completed <= 1) return 1;
     if (completed <= 3) return 2;
     if (completed <= 6) return 3;
@@ -419,38 +553,31 @@
 
   function getPomegranateCount(completed) {
     if (completed < 10) return 0;
-    return completed - 9; // first pomegranate at 10 tasks
+    return completed - 9;
   }
 
-  // ---------- SVG PLANT RENDERER ----------
-  function renderPlantSVG(completed) {
+  // ---------- SVG PLANT ----------
+  function renderPlantSVG(completed, size = 200) {
     const stage = getPlantStage(completed);
     const fruits = getPomegranateCount(completed);
-
-    // Base SVG
-    let svg = `<svg viewBox="0 0 200 200" width="200" height="200" xmlns="http://www.w3.org/2000/svg">`;
-    // soil
+    let svg = `<svg viewBox="0 0 200 200" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">`;
     svg += `<ellipse cx="100" cy="170" rx="60" ry="18" fill="#8b6b4d" opacity="0.5" />`;
     svg += `<ellipse cx="100" cy="165" rx="50" ry="12" fill="#6b4f35" />`;
 
     if (stage === 1) {
-      // seed
       svg += `<ellipse cx="100" cy="162" rx="8" ry="6" fill="#b38b6d" />`;
       svg += `<ellipse cx="100" cy="160" rx="5" ry="3.5" fill="#d9b382" />`;
     } else if (stage === 2) {
-      // sprout
       svg += `<path d="M100 165 Q98 145 100 130" stroke="#5f8b4b" stroke-width="3" fill="none" stroke-linecap="round" />`;
       svg += `<ellipse cx="94" cy="136" rx="10" ry="6" fill="#7db87a" transform="rotate(-25 94 136)" />`;
       svg += `<ellipse cx="106" cy="130" rx="9" ry="5.5" fill="#6da86a" transform="rotate(20 106 130)" />`;
     } else if (stage === 3) {
-      // growing plant: stem + 4 leaves
       svg += `<path d="M100 165 Q98 135 100 110 Q102 95 100 80" stroke="#4c7a3f" stroke-width="4" fill="none" stroke-linecap="round" />`;
       svg += `<ellipse cx="82" cy="130" rx="15" ry="8" fill="#7db87a" transform="rotate(-30 82 130)" />`;
       svg += `<ellipse cx="118" cy="120" rx="14" ry="7" fill="#6da86a" transform="rotate(25 118 120)" />`;
       svg += `<ellipse cx="85" cy="105" rx="13" ry="7" fill="#7db87a" transform="rotate(-20 85 105)" />`;
       svg += `<ellipse cx="115" cy="98" rx="12" ry="6.5" fill="#6da86a" transform="rotate(30 115 98)" />`;
     } else if (stage === 4) {
-      // mature plant: thicker stem, more leaves
       svg += `<path d="M100 165 Q98 120 100 90 Q102 75 100 60" stroke="#3e6a34" stroke-width="5" fill="none" stroke-linecap="round" />`;
       svg += `<ellipse cx="78" cy="140" rx="16" ry="9" fill="#6da86a" transform="rotate(-35 78 140)" />`;
       svg += `<ellipse cx="122" cy="130" rx="15" ry="8" fill="#5d9a5a" transform="rotate(30 122 130)" />`;
@@ -459,9 +586,7 @@
       svg += `<ellipse cx="84" cy="90" rx="14" ry="7" fill="#7db87a" transform="rotate(-20 84 90)" />`;
       svg += `<ellipse cx="116" cy="80" rx="13" ry="6.5" fill="#5d9a5a" transform="rotate(25 116 80)" />`;
     } else if (stage === 5) {
-      // fruitful: max leaves + pomegranates
       svg += `<path d="M100 165 Q98 115 100 80 Q102 65 100 50" stroke="#2f5a2b" stroke-width="5.5" fill="none" stroke-linecap="round" />`;
-      // leaves
       svg += `<ellipse cx="74" cy="145" rx="17" ry="9" fill="#6da86a" transform="rotate(-35 74 145)" />`;
       svg += `<ellipse cx="126" cy="135" rx="16" ry="8.5" fill="#5d9a5a" transform="rotate(30 126 135)" />`;
       svg += `<ellipse cx="78" cy="120" rx="16" ry="8" fill="#7db87a" transform="rotate(-25 78 120)" />`;
@@ -471,56 +596,53 @@
       svg += `<ellipse cx="88" cy="72" rx="13" ry="6.5" fill="#7db87a" transform="rotate(-15 88 72)" />`;
       svg += `<ellipse cx="112" cy="64" rx="12" ry="6" fill="#6da86a" transform="rotate(20 112 64)" />`;
 
-      // pomegranates: first fruit at 10 tasks, second at 11, etc. render up to fruits count (max maybe 8 for visual)
       const positions = [
-        { x: 76, y: 128 },
-        { x: 124, y: 118 },
-        { x: 80, y: 102 },
-        { x: 120, y: 92 },
-        { x: 86, y: 84 },
-        { x: 114, y: 76 },
-        { x: 90, y: 66 },
-        { x: 110, y: 58 },
+        { x: 76, y: 128 }, { x: 124, y: 118 },
+        { x: 80, y: 102 }, { x: 120, y: 92 },
+        { x: 86, y: 84 }, { x: 114, y: 76 },
+        { x: 90, y: 66 }, { x: 110, y: 58 },
       ];
       for (let i = 0; i < Math.min(fruits, positions.length); i++) {
         const { x, y } = positions[i];
-        // pomegranate crown + body
         svg += `<circle cx="${x}" cy="${y}" r="10" fill="#b13333" />`;
         svg += `<circle cx="${x-2}" cy="${y-2}" r="2.5" fill="#8b1e1e" opacity="0.6" />`;
         svg += `<circle cx="${x+3}" cy="${y+1}" r="2" fill="#8b1e1e" opacity="0.5" />`;
-        // crown
         svg += `<path d="M${x-5} ${y-9} L${x-2} ${y-13} L${x} ${y-10} L${x+3} ${y-13} L${x+5} ${y-9} Z" fill="#c94f4f" />`;
       }
-      if (fruits > positions.length) {
-        // show extra as small fruits near base or tiny dots (optional)
-        for (let i = positions.length; i < Math.min(fruits, positions.length+5); i++) {
-          svg += `<circle cx="${100 + (i%2===0? -20: 20)}" cy="${150 + (i%3)*4}" r="6" fill="#b13333" />`;
-        }
-      }
     }
-
     svg += `</svg>`;
     return svg;
   }
 
-  // ---------- RENDER PAGES ----------
+  // ---------- PAGES ----------
   let currentPage = 'home';
-  let homeFilter = 'all'; // 'all', 'today', 'upcoming'
+  let homeFilter = 'all';
+
+  function getPageFromHash() {
+    const h = (location.hash || '').replace('#', '').toLowerCase();
+    if (h === 'tasks' || h === 'missions' || h === 'home') return h;
+    return null;
+  }
 
   function renderApp() {
+    if (isWidgetMode) {
+      renderWidget();
+      return;
+    }
     const container = document.getElementById('pageContainer');
-    // update bottom nav active
     document.querySelectorAll('.nav-item').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.page === currentPage);
     });
+    if (currentPage === 'home') renderHome(container);
+    else if (currentPage === 'tasks') renderTasks(container);
+    else if (currentPage === 'missions') renderMissions(container);
+  }
 
-    if (currentPage === 'home') {
-      renderHome(container);
-    } else if (currentPage === 'tasks') {
-      renderTasks(container);
-    } else if (currentPage === 'missions') {
-      renderMissions(container);
-    }
+  function renderWidget() {
+    const completed = state.tasks.filter(t => t.completed).length;
+    const pending = state.tasks.filter(t => !t.completed).length;
+    document.getElementById('wPlant').innerHTML = renderPlantSVG(completed, 90);
+    document.getElementById('wCount').textContent = `${pending} task${pending === 1 ? '' : 's'} pending`;
   }
 
   // ---------- HOME PAGE ----------
@@ -530,7 +652,6 @@
     const fruits = getPomegranateCount(completed);
     const pendingTasks = state.tasks.filter(t => !t.completed);
 
-    // filter pending tasks
     let filteredTasks = pendingTasks;
     const todayStr = new Date().toISOString().split('T')[0];
     if (homeFilter === 'today') {
@@ -539,19 +660,28 @@
       filteredTasks = pendingTasks.filter(t => t.deadline && t.deadline > todayStr);
     }
 
-    // Build mission map for names
     const missionMap = {};
     state.missions.forEach(m => missionMap[m.id] = m.name);
 
     let html = `
-      <div class="page-title">🌿 My Growth Garden</div>
+      <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+      <div class="page-title">🌿 Rummān Garden <span class="arabic">رُمَّان</span></div>
       <div class="card" style="padding: 10px 8px 8px; text-align: center;">
         <div class="plant-stage">
-          <div class="plant-svg-container">${renderPlantSVG(completed)}</div>
+          <div class="plant-svg-container">${renderPlantSVG(completed, 200)}</div>
           <div class="growth-stats">
-            <div class="stat"><div class="stat-label">completed</div><div class="stat-value">${completed}</div></div>
-            <div class="stat"><div class="stat-label">stage</div><div class="stat-value">${stage}/5</div></div>
-            <div class="stat"><div class="stat-label">pomegranates</div><div class="stat-value">${fruits}</div></div>
+            <div class="stat">
+              <div class="stat-label">completed<small>الحمد لله</small></div>
+              <div class="stat-value">${completed}</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">stage<small>مرحلة</small></div>
+              <div class="stat-value">${stage}/5</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">pomegranates<small>رُمَّان</small></div>
+              <div class="stat-value">${fruits}</div>
+            </div>
           </div>
         </div>
         <div class="action-buttons">
@@ -561,7 +691,7 @@
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin: 8px 0 4px;">
-        <h3 style="color:#2c4a2e; font-size:18px;">MY TO-DO LIST</h3>
+        <h3 style="color:#1f4a2c; font-size:18px;">MY TO-DO LIST</h3>
       </div>
       <div class="filter-row">
         <button class="filter-chip ${homeFilter === 'all' ? 'active' : ''}" data-filter="all">All</button>
@@ -572,7 +702,7 @@
     `;
 
     if (filteredTasks.length === 0) {
-      html += `<div class="empty-message">✨ No pending tasks — enjoy the peace, or add a new task.</div>`;
+      html += `<div class="empty-message"><span class="arabic">الحمد لله</span>All tasks complete — may Allah accept your efforts.</div>`;
     } else {
       filteredTasks.forEach(task => {
         const missionName = missionMap[task.missionId] || 'General';
@@ -595,36 +725,18 @@
 
     container.innerHTML = html;
 
-    // Attach event listeners
     document.querySelectorAll('.filter-chip').forEach(chip => {
-      chip.addEventListener('click', (e) => {
-        homeFilter = e.target.dataset.filter;
-        renderApp();
-      });
+      chip.addEventListener('click', (e) => { homeFilter = e.target.dataset.filter; renderApp(); });
     });
-
-    // task check click (complete task)
     document.querySelectorAll('.task-check').forEach(check => {
-      check.addEventListener('click', (e) => {
-        const taskId = check.dataset.taskId;
-        completeTask(taskId);
-      });
+      check.addEventListener('click', () => completeTask(check.dataset.taskId));
     });
-
-    // undo button
     const undoBtn = document.getElementById('undoBtn');
-    if (undoBtn) {
-      undoBtn.addEventListener('click', () => {
-        undoLastCompletion();
-      });
-    }
-
-    // reset button
+    if (undoBtn) undoBtn.addEventListener('click', undoLastCompletion);
     const resetBtn = document.getElementById('resetBtn');
     if (resetBtn) {
       resetBtn.addEventListener('click', () => {
-        if (confirm('Reset plant to seed? All task completions will be cleared. Tasks and missions remain.')) {
-          // reset all tasks to incomplete
+        if (confirm('Reset the garden to a seed? All task completions will be cleared. Tasks and missions remain.')) {
           state.tasks.forEach(t => t.completed = false);
           state.completedCount = 0;
           saveState();
@@ -639,24 +751,22 @@
     const missionMap = {};
     state.missions.forEach(m => missionMap[m.id] = m.name);
 
-    // separate pending and completed for display? show all tasks maybe with status.
     const pending = state.tasks.filter(t => !t.completed);
     const completed = state.tasks.filter(t => t.completed);
 
-    // sort by deadline (null last) or creation
     const sortTasks = (arr) => arr.sort((a, b) => {
       if (a.deadline && b.deadline) return a.deadline.localeCompare(b.deadline);
       if (a.deadline) return -1;
       if (b.deadline) return 1;
-      return b.createdAt - a.createdAt;
+      return (b.createdAt || 0) - (a.createdAt || 0);
     });
     sortTasks(pending);
     sortTasks(completed);
 
     let html = `
-      <div class="page-title">📋 Tasks</div>
+      <div class="page-title">📋 Tasks <span class="arabic">مهام</span></div>
       <div class="card">
-        <h3 style="margin-bottom: 12px; font-weight: 500; color:#2c4a2e;">New task</h3>
+        <h3 style="margin-bottom: 12px; font-weight: 500; color:#1f4a2c;">New task</h3>
         <div class="form-group">
           <label>Title *</label>
           <input type="text" id="taskTitle" placeholder="e.g. Prepare proposal" maxlength="60">
@@ -678,11 +788,11 @@
         <button class="btn-soft" id="addTaskBtn" style="width:100%; padding:14px;">+ Add task</button>
       </div>
 
-      <h3 style="margin: 16px 0 8px; color:#2c4a2e;">Pending (${pending.length})</h3>
+      <h3 style="margin: 16px 0 8px; color:#1f4a2c;">Pending (${pending.length})</h3>
       <div class="card" style="padding: 4px 16px;">
     `;
     if (pending.length === 0) {
-      html += `<div class="empty-message">All caught up. Add a new task above.</div>`;
+      html += `<div class="empty-message"><span class="arabic">الحمد لله</span>All caught up. Add a new task above.</div>`;
     } else {
       pending.forEach(task => {
         const missionName = missionMap[task.missionId] || 'General';
@@ -704,10 +814,10 @@
     }
     html += `</div>`;
 
-    html += `<h3 style="margin: 20px 0 8px; color:#2c4a2e;">Completed (${completed.length})</h3>
+    html += `<h3 style="margin: 20px 0 8px; color:#1f4a2c;">Completed (${completed.length})</h3>
       <div class="card" style="padding: 4px 16px;">`;
     if (completed.length === 0) {
-      html += `<div class="empty-message">No completed tasks yet.</div>`;
+      html += `<div class="empty-message"><span class="arabic">إن شاء الله</span>No completed tasks yet.</div>`;
     } else {
       completed.forEach(task => {
         const missionName = missionMap[task.missionId] || 'General';
@@ -729,53 +839,37 @@
 
     container.innerHTML = html;
 
-    // add task
     document.getElementById('addTaskBtn').addEventListener('click', () => {
       const title = document.getElementById('taskTitle').value.trim();
       const desc = document.getElementById('taskDesc').value.trim();
       const deadline = document.getElementById('taskDeadline').value;
       const missionId = document.getElementById('taskMission').value;
       if (!title) return alert('Task title is required.');
-      const newTask = {
+      state.tasks.push({
         id: 't' + Date.now() + Math.random().toString(36).substr(2, 5),
-        title,
-        description: desc,
-        deadline: deadline || null,
-        missionId,
-        completed: false,
-        createdAt: Date.now(),
-      };
-      state.tasks.push(newTask);
+        title, description: desc, deadline: deadline || null,
+        missionId, completed: false, createdAt: Date.now(),
+      });
       saveState();
       renderApp();
     });
 
-    // complete/pending toggle (only pending tasks have data-complete="true")
     document.querySelectorAll('.task-check[data-complete="true"]').forEach(check => {
-      check.addEventListener('click', (e) => {
-        const taskId = check.dataset.taskId;
-        completeTask(taskId);
-      });
+      check.addEventListener('click', () => completeTask(check.dataset.taskId));
     });
-
-    // delete task
     document.querySelectorAll('[data-delete-id]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = btn.dataset.deleteId;
+      btn.addEventListener('click', () => {
         if (confirm('Delete this task?')) {
-          state.tasks = state.tasks.filter(t => t.id !== id);
+          state.tasks = state.tasks.filter(t => t.id !== btn.dataset.deleteId);
           syncCompletedCountFromTasks();
           saveState();
           renderApp();
         }
       });
     });
-
-    // edit task (simple prompt-based for simplicity)
     document.querySelectorAll('[data-edit-id]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = btn.dataset.editId;
-        const task = state.tasks.find(t => t.id === id);
+      btn.addEventListener('click', () => {
+        const task = state.tasks.find(t => t.id === btn.dataset.editId);
         if (!task) return;
         const newTitle = prompt('Edit task title:', task.title);
         if (newTitle === null) return;
@@ -792,12 +886,18 @@
 
   // ---------- MISSIONS PAGE ----------
   function renderMissions(container) {
-    let html = `<div class="page-title">🏔️ Missions</div>`;
-    // add mission form (max 5)
+    let html = `
+      <div class="page-title">🏔️ Missions <span class="arabic">أهداف</span></div>
+      <div class="card verse-card">
+        <div class="arabic">فِيهِمَا فَاكِهَةٌ وَنَخْلٌ وَرُمَّانٌ</div>
+        <div class="translation">"In them are fruits, palm trees, and pomegranates."</div>
+        <div class="ref">— Qur'an 55:68 (Surah Ar-Rahman)</div>
+      </div>
+    `;
     if (state.missions.length < 5) {
       html += `
         <div class="card">
-          <h3 style="margin-bottom: 12px; font-weight: 500; color:#2c4a2e;">Add mission</h3>
+          <h3 style="margin-bottom: 12px; font-weight: 500; color:#1f4a2c;">Add mission</h3>
           <div class="form-group">
             <label>Mission name *</label>
             <input type="text" id="missionName" placeholder="e.g. Health & Fitness" maxlength="40">
@@ -821,10 +921,8 @@
       html += `
         <div class="mission-card">
           <div style="display:flex; justify-content:space-between;">
-            <h3 style="color:#2d5e3b; font-size:18px;">${escapeHtml(mission.name)}</h3>
-            <div>
-              <button class="icon-btn" data-edit-mission="${mission.id}">✏️</button>
-            </div>
+            <h3 style="color:#1f4a2c; font-size:18px;">${escapeHtml(mission.name)}</h3>
+            <button class="icon-btn" data-edit-mission="${mission.id}">✏️</button>
           </div>
           <p style="color:#6b7d63; font-size:14px; margin: 8px 0 12px;">${escapeHtml(mission.description || '')}</p>
           <div style="display:flex; justify-content:space-between; font-size:13px; color:#5f7358;">
@@ -839,7 +937,6 @@
     html += `</div>`;
     container.innerHTML = html;
 
-    // add mission
     const addBtn = document.getElementById('addMissionBtn');
     if (addBtn) {
       addBtn.addEventListener('click', () => {
@@ -847,22 +944,17 @@
         const desc = document.getElementById('missionDesc').value.trim();
         if (!name) return alert('Mission name is required.');
         if (state.missions.length >= 5) return alert('Maximum 5 missions allowed.');
-        const newMission = {
+        state.missions.push({
           id: 'm' + Date.now() + Math.random().toString(36).substr(2, 4),
-          name,
-          description: desc,
-        };
-        state.missions.push(newMission);
+          name, description: desc,
+        });
         saveState();
         renderApp();
       });
     }
-
-    // edit mission
     document.querySelectorAll('[data-edit-mission]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = btn.dataset.editMission;
-        const mission = state.missions.find(m => m.id === id);
+      btn.addEventListener('click', () => {
+        const mission = state.missions.find(m => m.id === btn.dataset.editMission);
         if (!mission) return;
         const newName = prompt('Edit mission name:', mission.name);
         if (newName === null) return;
@@ -877,7 +969,7 @@
     });
   }
 
-  // ---------- CORE ACTIONS ----------
+  // ---------- ACTIONS ----------
   function completeTask(taskId) {
     const task = state.tasks.find(t => t.id === taskId && !t.completed);
     if (!task) return;
@@ -888,39 +980,104 @@
   }
 
   function undoLastCompletion() {
-    // find most recently completed task (based on maybe completedAt? we don't store)
-    // for simplicity, just take any completed task (the last one in array that is completed)
-    const completedTasks = state.tasks.filter(t => t.completed);
-    if (completedTasks.length === 0) return;
-    // pick the last completed task (most recent in insertion order)
-    const lastCompleted = completedTasks[completedTasks.length - 1];
-    lastCompleted.completed = false;
+    const completed = state.tasks.filter(t => t.completed);
+    if (completed.length === 0) return;
+    completed[completed.length - 1].completed = false;
     syncCompletedCountFromTasks();
     saveState();
     renderApp();
   }
 
-  // helper escape
   function escapeHtml(text) {
     if (!text) return '';
     const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    return text.replace(/[&<>"']/g, m => map[m]);
   }
 
   // ---------- NAVIGATION ----------
   document.querySelectorAll('.nav-item').forEach(btn => {
     btn.addEventListener('click', () => {
       currentPage = btn.dataset.page;
+      location.hash = currentPage;
       renderApp();
     });
   });
 
+  window.addEventListener('hashchange', () => {
+    const page = getPageFromHash();
+    if (page) { currentPage = page; renderApp(); }
+  });
+
+  // ---------- WIDGET MODE ----------
+  const urlParams = new URLSearchParams(location.search);
+  const isWidgetMode = urlParams.get('widget') === 'true';
+
   // ---------- INIT ----------
   loadState();
-  // ensure completedCount is synced
   syncCompletedCountFromTasks();
   saveState();
-  renderApp();
+
+  if (isWidgetMode) {
+    document.body.classList.add('widget-mode');
+    document.getElementById('widgetRoot').addEventListener('click', () => {
+      location.href = './#tasks';
+    });
+    renderWidget();
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORAGE_KEY || e.key === 'rumman_widget_ping') {
+        loadState();
+        renderWidget();
+      }
+    });
+    setInterval(() => { loadState(); renderWidget(); }, 5000);
+  } else {
+    const hashPage = getPageFromHash();
+    if (hashPage) currentPage = hashPage;
+
+    renderApp();
+
+    // ---------- SERVICE WORKER ----------
+    if ('serviceWorker' in navigator) {
+      const swCode = `
+        const CACHE = 'rumman-v1';
+        self.addEventListener('install', e => { self.skipWaiting(); });
+        self.addEventListener('activate', e => { e.waitUntil(clients.claim()); });
+        self.addEventListener('fetch', e => {
+          e.respondWith(
+            caches.match(e.request).then(r => r || fetch(e.request).then(res => res).catch(() => caches.match('./')))
+          );
+        });
+      `;
+      const blob = new Blob([swCode], { type: 'application/javascript' });
+      const swUrl = URL.createObjectURL(blob);
+      navigator.serviceWorker.register(swUrl).catch(() => {});
+    }
+
+    // ---------- INSTALL BANNER ----------
+    let deferredPrompt = null;
+    const installBanner = document.getElementById('installBanner');
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBanner.style.display = 'flex';
+    });
+
+    if (installBtn) {
+      installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        installBanner.style.display = 'none';
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      installBanner.style.display = 'none';
+    });
+  }
 </script>
 </body>
 </html>
