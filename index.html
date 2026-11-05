@@ -9,12 +9,12 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Rummān · growth garden</title>
 
-  <!-- ========== WEB ICONS (external SVG files) ========== -->
+  <!-- ========== WEB ICONS ========== -->
   <link rel="icon" type="image/svg+xml" sizes="64x64" href="favicon.svg">
   <link rel="shortcut icon" href="favicon.svg">
   <link rel="apple-touch-icon" sizes="512x512" href="icon.svg">
 
-  <!-- PWA manifest (inline, references the SVG files) -->
+  <!-- PWA manifest -->
   <link rel="manifest" href='data:application/manifest+json,{
     "name": "Rummān · Growth Garden",
     "short_name": "Rummān",
@@ -65,7 +65,6 @@
       position: relative;
     }
 
-    /* ---- WIDGET MODE ---- */
     body.widget-mode {
       background: transparent;
       padding: 0;
@@ -85,7 +84,6 @@
     body.widget-mode .page-container { display: none; }
     body.widget-mode #widgetRoot { display: flex; }
 
-    /* ---- WIDGET STYLES ---- */
     #widgetRoot {
       display: none;
       width: 100%;
@@ -124,7 +122,6 @@
     }
     #widgetRoot:active { background: #eef3ea; }
 
-    /* ---- MAIN APP ---- */
     .page-container {
       flex: 1;
       overflow-y: auto;
@@ -290,7 +287,15 @@
       border: 1.5px solid #e0d9cf;
       color: #9c7c5b;
     }
-    .filter-row { display: flex; gap: 8px; margin: 12px 0 10px; }
+
+    /* ---- Filter + Sort row (NEW) ---- */
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
     .filter-chip {
       background: #eae8e1;
       border: none;
@@ -302,6 +307,35 @@
       cursor: pointer;
     }
     .filter-chip.active { background: #1f4a2c; color: white; }
+
+    /* NEW: sort dropdown */
+    .sort-select {
+      margin-left: auto;
+      background: #ffffff;
+      border: 1.5px solid #d6e0cf;
+      border-radius: 30px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #1f4a2c;
+      cursor: pointer;
+      outline: none;
+    }
+    .sort-select:focus { border-color: #7f9e7a; }
+
+    /* NEW: days-left badge */
+    .days-left {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.2px;
+    }
+    .days-left.safe { background: #e3ece1; color: #2d5e3b; }
+    .days-left.warn { background: #fdf3d8; color: #9c6b00; }
+    .days-left.overdue { background: #fbe2e2; color: #b13333; }
+
     .task-item {
       display: flex;
       align-items: center;
@@ -326,7 +360,15 @@
     .task-check.completed svg { stroke: white; width: 16px; height: 16px; }
     .task-info { flex: 1; }
     .task-title { font-weight: 500; color: #2c3e2b; font-size: 15px; }
-    .task-meta { font-size: 12px; color: #8b9a7e; display: flex; gap: 8px; margin-top: 4px; }
+    .task-meta {
+      font-size: 12px;
+      color: #8b9a7e;
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
     .mission-badge {
       background: #e3ece1;
       padding: 2px 10px;
@@ -403,6 +445,7 @@
     }
     .icon-btn { background: none; border: none; font-size: 18px; cursor: pointer; padding: 4px 8px; }
 
+    /* Verse card */
     .verse-card {
       background: linear-gradient(135deg, #f4f7ef 0%, #e8efe3 100%);
       border-left: 3px solid #c9a227;
@@ -614,9 +657,31 @@
     return svg;
   }
 
+  // ---------- HELPERS ----------
+  // NEW: calculate days left from a YYYY-MM-DD deadline
+  function daysLeftFrom(deadlineStr) {
+    if (!deadlineStr) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(deadlineStr + 'T00:00:00');
+    const diffMs = due - today;
+    return Math.round(diffMs / (1000 * 60 * 60 * 24));
+  }
+
+  // NEW: format the days-left badge
+  function formatDaysLeft(days) {
+    if (days === null) return '';
+    if (days < 0) return { text: 'Overdue', cls: 'overdue' };
+    if (days === 0) return { text: 'Due today', cls: 'warn' };
+    if (days === 1) return { text: 'Tomorrow', cls: 'warn' };
+    if (days <= 3) return { text: `${days}d left`, cls: 'warn' };
+    return { text: `${days}d left`, cls: 'safe' };
+  }
+
   // ---------- PAGES ----------
   let currentPage = 'home';
   let homeFilter = 'all';
+  let homeSort = 'default'; // NEW: 'default' | 'mission' | 'deadline'
 
   function getPageFromHash() {
     const h = (location.hash || '').replace('#', '').toLowerCase();
@@ -660,8 +725,32 @@
       filteredTasks = pendingTasks.filter(t => t.deadline && t.deadline > todayStr);
     }
 
+    // Build mission lookup
     const missionMap = {};
     state.missions.forEach(m => missionMap[m.id] = m.name);
+
+    // NEW: apply sort
+    const sorted = [...filteredTasks];
+    if (homeSort === 'mission') {
+      sorted.sort((a, b) => {
+        const an = missionMap[a.missionId] || 'ZZZ';
+        const bn = missionMap[b.missionId] || 'ZZZ';
+        if (an !== bn) return an.localeCompare(bn);
+        // within same mission, sort by deadline (no deadline last)
+        if (a.deadline && b.deadline) return a.deadline.localeCompare(b.deadline);
+        if (a.deadline) return -1;
+        if (b.deadline) return 1;
+        return (a.createdAt || 0) - (b.createdAt || 0);
+      });
+    } else if (homeSort === 'deadline') {
+      sorted.sort((a, b) => {
+        if (a.deadline && b.deadline) return a.deadline.localeCompare(b.deadline);
+        if (a.deadline) return -1;
+        if (b.deadline) return 1;
+        return (a.createdAt || 0) - (b.createdAt || 0);
+      });
+    }
+    // 'default' → keep original array order (insertion order)
 
     let html = `
       <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
@@ -697,16 +786,24 @@
         <button class="filter-chip ${homeFilter === 'all' ? 'active' : ''}" data-filter="all">All</button>
         <button class="filter-chip ${homeFilter === 'today' ? 'active' : ''}" data-filter="today">Today</button>
         <button class="filter-chip ${homeFilter === 'upcoming' ? 'active' : ''}" data-filter="upcoming">Upcoming</button>
+        <select class="sort-select" id="homeSortSelect" aria-label="Sort tasks">
+          <option value="default" ${homeSort === 'default' ? 'selected' : ''}>Sort: Default</option>
+          <option value="mission" ${homeSort === 'mission' ? 'selected' : ''}>Sort: Mission</option>
+          <option value="deadline" ${homeSort === 'deadline' ? 'selected' : ''}>Sort: Days left</option>
+        </select>
       </div>
       <div class="card" style="padding: 4px 16px; margin-bottom: 20px;">
     `;
 
-    if (filteredTasks.length === 0) {
+    if (sorted.length === 0) {
       html += `<div class="empty-message"><span class="arabic">الحمد لله</span>All tasks complete — may Allah accept your efforts.</div>`;
     } else {
-      filteredTasks.forEach(task => {
+      sorted.forEach(task => {
         const missionName = missionMap[task.missionId] || 'General';
-        const deadlineStr = task.deadline ? `📅 ${task.deadline}` : '';
+        const dl = daysLeftFrom(task.deadline);
+        const dlFmt = formatDaysLeft(dl);
+        const daysHtml = dlFmt ? `<span class="days-left ${dlFmt.cls}">${dlFmt.text}</span>` : '';
+        const dateHtml = task.deadline ? `<span>📅 ${task.deadline}</span>` : '';
         html += `
           <div class="task-item">
             <div class="task-check" data-task-id="${task.id}"></div>
@@ -714,7 +811,8 @@
               <div class="task-title">${escapeHtml(task.title)}</div>
               <div class="task-meta">
                 <span class="mission-badge">${escapeHtml(missionName)}</span>
-                ${deadlineStr ? `<span>${deadlineStr}</span>` : ''}
+                ${dateHtml}
+                ${daysHtml}
               </div>
             </div>
           </div>
@@ -728,6 +826,11 @@
     document.querySelectorAll('.filter-chip').forEach(chip => {
       chip.addEventListener('click', (e) => { homeFilter = e.target.dataset.filter; renderApp(); });
     });
+    // NEW: sort dropdown handler
+    const sortSel = document.getElementById('homeSortSelect');
+    if (sortSel) {
+      sortSel.addEventListener('change', (e) => { homeSort = e.target.value; renderApp(); });
+    }
     document.querySelectorAll('.task-check').forEach(check => {
       check.addEventListener('click', () => completeTask(check.dataset.taskId));
     });
@@ -796,6 +899,9 @@
     } else {
       pending.forEach(task => {
         const missionName = missionMap[task.missionId] || 'General';
+        const dl = daysLeftFrom(task.deadline);
+        const dlFmt = formatDaysLeft(dl);
+        const daysHtml = dlFmt ? `<span class="days-left ${dlFmt.cls}">${dlFmt.text}</span>` : '';
         html += `
           <div class="task-item" style="align-items: center;">
             <div class="task-check" data-task-id="${task.id}" data-complete="true"></div>
@@ -804,6 +910,7 @@
               <div class="task-meta">
                 <span class="mission-badge">${escapeHtml(missionName)}</span>
                 ${task.deadline ? `<span>📅 ${task.deadline}</span>` : ''}
+                ${daysHtml}
               </div>
             </div>
             <button class="icon-btn" data-edit-id="${task.id}">✏️</button>
@@ -886,12 +993,13 @@
 
   // ---------- MISSIONS PAGE ----------
   function renderMissions(container) {
+    // NEW: Surah Al-Insyirah 94:5-6 replaces Ar-Rahman 55:68
     let html = `
       <div class="page-title">🏔️ Missions <span class="arabic">أهداف</span></div>
       <div class="card verse-card">
-        <div class="arabic">فِيهِمَا فَاكِهَةٌ وَنَخْلٌ وَرُمَّانٌ</div>
-        <div class="translation">"In them are fruits, palm trees, and pomegranates."</div>
-        <div class="ref">— Qur'an 55:68 (Surah Ar-Rahman)</div>
+        <div class="arabic">فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا</div>
+        <div class="translation">"For indeed, with hardship comes ease. Indeed, with hardship comes ease."</div>
+        <div class="ref">— Qur'an 94:5–6 (Surah Al-Insyirah)</div>
       </div>
     `;
     if (state.missions.length < 5) {
