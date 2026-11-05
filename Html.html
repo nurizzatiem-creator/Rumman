@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Pomme · growth garden</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+      background: #faf8f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 8px 0;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 420px;
+      background: #faf8f2;
+      border-radius: 36px;
+      box-shadow: 0 20px 40px rgba(60, 50, 30, 0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 780px;
+      position: relative;
+    }
+
+    /* main scrollable area */
+    .page-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 18px 12px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .page-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* bottom nav */
+    .bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: #ffffffd9;
+      backdrop-filter: blur(10px);
+      padding: 10px 6px 16px;
+      border-top: 1px solid #e7e3da;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.02);
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #8b9a7e;
+      transition: color 0.2s;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px 18px;
+      border-radius: 40px;
+    }
+    .nav-item.active {
+      color: #2d5e3b;
+      font-weight: 600;
+    }
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      fill: none;
+    }
+
+    /* typography & common */
+    h1, h2, h3 {
+      font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+    .page-title {
+      font-size: 26px;
+      color: #2c4a2e;
+      margin-bottom: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card {
+      background: white;
+      border-radius: 28px;
+      padding: 18px 16px;
+      box-shadow: 0 6px 18px rgba(80, 70, 50, 0.04);
+      margin-bottom: 16px;
+      border: 1px solid #efede7;
+    }
+    .btn-soft {
+      background: #e7f0e5;
+      border: none;
+      border-radius: 40px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #2d5e3b;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-soft:active { background: #d6e6d2; }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid #cbd9c4;
+      border-radius: 40px;
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #456b4b;
+      cursor: pointer;
+    }
+
+    /* Plant area */
+    .plant-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 0 4px;
+    }
+    .plant-svg-container {
+      width: 200px;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .growth-stats {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      margin-top: 6px;
+      margin-bottom: 8px;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #7c8f74;
+      letter-spacing: 0.3px;
+    }
+    .stat-value {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2d4a2e;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 12px 0 8px;
+    }
+    .reset-btn {
+      background: transparent;
+      border: 1.5px solid #e0d9cf;
+      color: #9c7c5b;
+    }
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0 10px;
+    }
+    .filter-chip {
+      background: #eae8e1;
+      border: none;
+      border-radius: 30px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #5d6b55;
+      cursor: pointer;
+    }
+    .filter-chip.active {
+      background: #2d5e3b;
+      color: white;
+    }
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid #f0ede6;
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 30px;
+      border: 1.8px solid #b8c9b0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      background: white;
+    }
+    .task-check.completed {
+      background: #2d5e3b;
+      border-color: #2d5e3b;
+    }
+    .task-check.completed svg {
+      stroke: white;
+      width: 16px;
+      height: 16px;
+    }
+    .task-info { flex: 1; }
+    .task-title {
+      font-weight: 500;
+      color: #2c3e2b;
+      font-size: 15px;
+    }
+    .task-meta {
+      font-size: 12px;
+      color: #8b9a7e;
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .mission-badge {
+      background: #e3ece1;
+      padding: 2px 10px;
+      border-radius: 30px;
+      font-size: 11px;
+      color: #35603b;
+    }
+    .empty-message {
+      text-align: center;
+      color: #a1b09a;
+      padding: 24px 0;
+      font-style: italic;
+    }
+
+    /* forms & tasks page */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      font-size: 13px;
+      color: #4f604b;
+      font-weight: 500;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 20px;
+      border: 1px solid #e2dfd7;
+      background: white;
+      font-size: 15px;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: #7f9e7a;
+    }
+    .form-group textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    .mission-list .mission-card {
+      background: white;
+      border-radius: 24px;
+      padding: 16px;
+      margin-bottom: 14px;
+      border: 1px solid #efede7;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+    .progress-bar-bg {
+      background: #e4ece1;
+      height: 8px;
+      border-radius: 30px;
+      margin: 10px 0 4px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 8px;
+      background: #467a4e;
+      border-radius: 30px;
+      width: 0%;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="page-container" id="pageContainer">
+    <!-- Home page will be injected dynamically -->
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-page="home">
+      <svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9-9 9-9-9z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Home
+    </button>
+    <button class="nav-item" data-page="tasks">
+      <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke-linecap="round"/></svg>
+      Tasks
+    </button>
+    <button class="nav-item" data-page="missions">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2" stroke-linecap="round"/></svg>
+      Missions
+    </button>
+  </nav>
+</div>
+
+<script>
+  // ---------- DATA & STATE ----------
+  const STORAGE_KEY = 'pomme_growth_app_v1';
+
+  const defaultMissions = [
+    { id: 'm1', name: 'NMZ KREATIF', description: 'Build and grow a professional training centre and creative business.' },
+    { id: 'm2', name: 'BAYUONE', description: "Develop a platform connecting Sabah's trainers, talents, opportunities, and communities." },
+    { id: 'm3', name: 'RUQYAH SYARIYYAH', description: 'Develop knowledge and practical skills in Quranic learning, Islamic knowledge, and Ruqyah Syar\'iyyah.' },
+  ];
+
+  let state = {
+    missions: [],
+    tasks: [],
+    completedCount: 0,      // tasks completed (affects plant)
+    pomegranates: 0,        // extra fruits after stage 5
+    // we store growth as completedCount directly, plant stage derived.
+  };
+
+  // Load or initialize
+  function loadState() {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        state = { ...state, ...parsed };
+        // ensure missions array exists
+        if (!state.missions || !Array.isArray(state.missions)) state.missions = [];
+        if (!state.tasks) state.tasks = [];
+        // if empty missions, add defaults
+        if (state.missions.length === 0) {
+          state.missions = defaultMissions.map(m => ({ ...m }));
+        }
+        // ensure completedCount matches actual completed tasks
+        syncCompletedCountFromTasks();
+      } catch (e) {
+        resetToDefault();
+      }
+    } else {
+      resetToDefault();
+    }
+  }
+
+  function resetToDefault() {
+    state = {
+      missions: defaultMissions.map(m => ({ ...m })),
+      tasks: [],
+      completedCount: 0,
+      pomegranates: 0,
+    };
+    // add a couple of sample tasks to demonstrate growth? optional, but will start fresh.
+    // we'll leave empty for clean start, but may want to auto-add? No, better empty.
+    saveState();
+  }
+
+  function syncCompletedCountFromTasks() {
+    const completed = state.tasks.filter(t => t.completed).length;
+    // But we also want to keep plant growth = number of completions *ever* (undo decreases)
+    // Our model: state.completedCount = total completed tasks count (should equal completed tasks length)
+    // But we also have pomegranates for extra fruit beyond 5 stages? Actually we track growth by completedCount.
+    // We'll use completedCount as the number of tasks completed (affects plant). We'll recalc from tasks.
+    // However if we undo, we reduce completedCount and also mark a task incomplete.
+    // So we must ensure consistency: completedCount should equal number of completed tasks.
+    // But we also want to keep pomegranates separate for visuals? Actually pomegranates = max(0, completedCount - 10) maybe?
+    // Simpler: plant stage based on completedCount; additional fruits after 10 completions.
+    // We'll keep completedCount in sync with tasks.
+    state.completedCount = state.tasks.filter(t => t.completed).length;
+    // pomegranates = max(0, completedCount - 10) but we store it for quick access, however it's derived.
+    // we'll derive in render.
+  }
+
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  // helper to get plant stage (1-5)
+  function getPlantStage(completed) {
+    if (completed === 0) return 1;
+    if (completed <= 2) return 1; // seed stage until 1? Actually stage1: seed (0-1 tasks?), better:
+    // stage 1: seed (0-1 tasks), stage2: sprout (2-3), stage3: growing (4-6), stage4: mature (7-9), stage5: fruitful (10+)
+    // Let's define:
+    if (completed <= 1) return 1;
+    if (completed <= 3) return 2;
+    if (completed <= 6) return 3;
+    if (completed <= 9) return 4;
+    return 5;
+  }
+
+  function getPomegranateCount(completed) {
+    if (completed < 10) return 0;
+    return completed - 9; // first pomegranate at 10 tasks
+  }
+
+  // ---------- SVG PLANT RENDERER ----------
+  function renderPlantSVG(completed) {
+    const stage = getPlantStage(completed);
+    const fruits = getPomegranateCount(completed);
+
+    // Base SVG
+    let svg = `<svg viewBox="0 0 200 200" width="200" height="200" xmlns="http://www.w3.org/2000/svg">`;
+    // soil
+    svg += `<ellipse cx="100" cy="170" rx="60" ry="18" fill="#8b6b4d" opacity="0.5" />`;
+    svg += `<ellipse cx="100" cy="165" rx="50" ry="12" fill="#6b4f35" />`;
+
+    if (stage === 1) {
+      // seed
+      svg += `<ellipse cx="100" cy="162" rx="8" ry="6" fill="#b38b6d" />`;
+      svg += `<ellipse cx="100" cy="160" rx="5" ry="3.5" fill="#d9b382" />`;
+    } else if (stage === 2) {
+      // sprout
+      svg += `<path d="M100 165 Q98 145 100 130" stroke="#5f8b4b" stroke-width="3" fill="none" stroke-linecap="round" />`;
+      svg += `<ellipse cx="94" cy="136" rx="10" ry="6" fill="#7db87a" transform="rotate(-25 94 136)" />`;
+      svg += `<ellipse cx="106" cy="130" rx="9" ry="5.5" fill="#6da86a" transform="rotate(20 106 130)" />`;
+    } else if (stage === 3) {
+      // growing plant: stem + 4 leaves
+      svg += `<path d="M100 165 Q98 135 100 110 Q102 95 100 80" stroke="#4c7a3f" stroke-width="4" fill="none" stroke-linecap="round" />`;
+      svg += `<ellipse cx="82" cy="130" rx="15" ry="8" fill="#7db87a" transform="rotate(-30 82 130)" />`;
+      svg += `<ellipse cx="118" cy="120" rx="14" ry="7" fill="#6da86a" transform="rotate(25 118 120)" />`;
+      svg += `<ellipse cx="85" cy="105" rx="13" ry="7" fill="#7db87a" transform="rotate(-20 85 105)" />`;
+      svg += `<ellipse cx="115" cy="98" rx="12" ry="6.5" fill="#6da86a" transform="rotate(30 115 98)" />`;
+    } else if (stage === 4) {
+      // mature plant: thicker stem, more leaves
+      svg += `<path d="M100 165 Q98 120 100 90 Q102 75 100 60" stroke="#3e6a34" stroke-width="5" fill="none" stroke-linecap="round" />`;
+      svg += `<ellipse cx="78" cy="140" rx="16" ry="9" fill="#6da86a" transform="rotate(-35 78 140)" />`;
+      svg += `<ellipse cx="122" cy="130" rx="15" ry="8" fill="#5d9a5a" transform="rotate(30 122 130)" />`;
+      svg += `<ellipse cx="80" cy="115" rx="15" ry="8" fill="#7db87a" transform="rotate(-25 80 115)" />`;
+      svg += `<ellipse cx="120" cy="105" rx="14" ry="7" fill="#6da86a" transform="rotate(35 120 105)" />`;
+      svg += `<ellipse cx="84" cy="90" rx="14" ry="7" fill="#7db87a" transform="rotate(-20 84 90)" />`;
+      svg += `<ellipse cx="116" cy="80" rx="13" ry="6.5" fill="#5d9a5a" transform="rotate(25 116 80)" />`;
+    } else if (stage === 5) {
+      // fruitful: max leaves + pomegranates
+      svg += `<path d="M100 165 Q98 115 100 80 Q102 65 100 50" stroke="#2f5a2b" stroke-width="5.5" fill="none" stroke-linecap="round" />`;
+      // leaves
+      svg += `<ellipse cx="74" cy="145" rx="17" ry="9" fill="#6da86a" transform="rotate(-35 74 145)" />`;
+      svg += `<ellipse cx="126" cy="135" rx="16" ry="8.5" fill="#5d9a5a" transform="rotate(30 126 135)" />`;
+      svg += `<ellipse cx="78" cy="120" rx="16" ry="8" fill="#7db87a" transform="rotate(-25 78 120)" />`;
+      svg += `<ellipse cx="122" cy="110" rx="15" ry="7.5" fill="#6da86a" transform="rotate(35 122 110)" />`;
+      svg += `<ellipse cx="82" cy="95" rx="15" ry="7" fill="#7db87a" transform="rotate(-20 82 95)" />`;
+      svg += `<ellipse cx="118" cy="85" rx="14" ry="7" fill="#5d9a5a" transform="rotate(25 118 85)" />`;
+      svg += `<ellipse cx="88" cy="72" rx="13" ry="6.5" fill="#7db87a" transform="rotate(-15 88 72)" />`;
+      svg += `<ellipse cx="112" cy="64" rx="12" ry="6" fill="#6da86a" transform="rotate(20 112 64)" />`;
+
+      // pomegranates: first fruit at 10 tasks, second at 11, etc. render up to fruits count (max maybe 8 for visual)
+      const positions = [
+        { x: 76, y: 128 },
+        { x: 124, y: 118 },
+        { x: 80, y: 102 },
+        { x: 120, y: 92 },
+        { x: 86, y: 84 },
+        { x: 114, y: 76 },
+        { x: 90, y: 66 },
+        { x: 110, y: 58 },
+      ];
+      for (let i = 0; i < Math.min(fruits, positions.length); i++) {
+        const { x, y } = positions[i];
+        // pomegranate crown + body
+        svg += `<circle cx="${x}" cy="${y}" r="10" fill="#b13333" />`;
+        svg += `<circle cx="${x-2}" cy="${y-2}" r="2.5" fill="#8b1e1e" opacity="0.6" />`;
+        svg += `<circle cx="${x+3}" cy="${y+1}" r="2" fill="#8b1e1e" opacity="0.5" />`;
+        // crown
+        svg += `<path d="M${x-5} ${y-9} L${x-2} ${y-13} L${x} ${y-10} L${x+3} ${y-13} L${x+5} ${y-9} Z" fill="#c94f4f" />`;
+      }
+      if (fruits > positions.length) {
+        // show extra as small fruits near base or tiny dots (optional)
+        for (let i = positions.length; i < Math.min(fruits, positions.length+5); i++) {
+          svg += `<circle cx="${100 + (i%2===0? -20: 20)}" cy="${150 + (i%3)*4}" r="6" fill="#b13333" />`;
+        }
+      }
+    }
+
+    svg += `</svg>`;
+    return svg;
+  }
+
+  // ---------- RENDER PAGES ----------
+  let currentPage = 'home';
+  let homeFilter = 'all'; // 'all', 'today', 'upcoming'
+
+  function renderApp() {
+    const container = document.getElementById('pageContainer');
+    // update bottom nav active
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.page === currentPage);
+    });
+
+    if (currentPage === 'home') {
+      renderHome(container);
+    } else if (currentPage === 'tasks') {
+      renderTasks(container);
+    } else if (currentPage === 'missions') {
+      renderMissions(container);
+    }
+  }
+
+  // ---------- HOME PAGE ----------
+  function renderHome(container) {
+    const completed = state.tasks.filter(t => t.completed).length;
+    const stage = getPlantStage(completed);
+    const fruits = getPomegranateCount(completed);
+    const pendingTasks = state.tasks.filter(t => !t.completed);
+
+    // filter pending tasks
+    let filteredTasks = pendingTasks;
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (homeFilter === 'today') {
+      filteredTasks = pendingTasks.filter(t => t.deadline && t.deadline <= todayStr);
+    } else if (homeFilter === 'upcoming') {
+      filteredTasks = pendingTasks.filter(t => t.deadline && t.deadline > todayStr);
+    }
+
+    // Build mission map for names
+    const missionMap = {};
+    state.missions.forEach(m => missionMap[m.id] = m.name);
+
+    let html = `
+      <div class="page-title">🌿 My Growth Garden</div>
+      <div class="card" style="padding: 10px 8px 8px; text-align: center;">
+        <div class="plant-stage">
+          <div class="plant-svg-container">${renderPlantSVG(completed)}</div>
+          <div class="growth-stats">
+            <div class="stat"><div class="stat-label">completed</div><div class="stat-value">${completed}</div></div>
+            <div class="stat"><div class="stat-label">stage</div><div class="stat-value">${stage}/5</div></div>
+            <div class="stat"><div class="stat-label">pomegranates</div><div class="stat-value">${fruits}</div></div>
+          </div>
+        </div>
+        <div class="action-buttons">
+          <button class="btn-soft" id="undoBtn" ${completed === 0 ? 'disabled style="opacity:0.4"' : ''}>↩ Undo</button>
+          <button class="btn-soft reset-btn" id="resetBtn">⟲ Reset</button>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin: 8px 0 4px;">
+        <h3 style="color:#2c4a2e; font-size:18px;">MY TO-DO LIST</h3>
+      </div>
+      <div class="filter-row">
+        <button class="filter-chip ${homeFilter === 'all' ? 'active' : ''}" data-filter="all">All</button>
+        <button class="filter-chip ${homeFilter === 'today' ? 'active' : ''}" data-filter="today">Today</button>
+        <button class="filter-chip ${homeFilter === 'upcoming' ? 'active' : ''}" data-filter="upcoming">Upcoming</button>
+      </div>
+      <div class="card" style="padding: 4px 16px; margin-bottom: 20px;">
+    `;
+
+    if (filteredTasks.length === 0) {
+      html += `<div class="empty-message">✨ No pending tasks — enjoy the peace, or add a new task.</div>`;
+    } else {
+      filteredTasks.forEach(task => {
+        const missionName = missionMap[task.missionId] || 'General';
+        const deadlineStr = task.deadline ? `📅 ${task.deadline}` : '';
+        html += `
+          <div class="task-item">
+            <div class="task-check" data-task-id="${task.id}"></div>
+            <div class="task-info">
+              <div class="task-title">${escapeHtml(task.title)}</div>
+              <div class="task-meta">
+                <span class="mission-badge">${escapeHtml(missionName)}</span>
+                ${deadlineStr ? `<span>${deadlineStr}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+    html += `</div>`;
+
+    container.innerHTML = html;
+
+    // Attach event listeners
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', (e) => {
+        homeFilter = e.target.dataset.filter;
+        renderApp();
+      });
+    });
+
+    // task check click (complete task)
+    document.querySelectorAll('.task-check').forEach(check => {
+      check.addEventListener('click', (e) => {
+        const taskId = check.dataset.taskId;
+        completeTask(taskId);
+      });
+    });
+
+    // undo button
+    const undoBtn = document.getElementById('undoBtn');
+    if (undoBtn) {
+      undoBtn.addEventListener('click', () => {
+        undoLastCompletion();
+      });
+    }
+
+    // reset button
+    const resetBtn = document.getElementById('resetBtn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (confirm('Reset plant to seed? All task completions will be cleared. Tasks and missions remain.')) {
+          // reset all tasks to incomplete
+          state.tasks.forEach(t => t.completed = false);
+          state.completedCount = 0;
+          saveState();
+          renderApp();
+        }
+      });
+    }
+  }
+
+  // ---------- TASKS PAGE ----------
+  function renderTasks(container) {
+    const missionMap = {};
+    state.missions.forEach(m => missionMap[m.id] = m.name);
+
+    // separate pending and completed for display? show all tasks maybe with status.
+    const pending = state.tasks.filter(t => !t.completed);
+    const completed = state.tasks.filter(t => t.completed);
+
+    // sort by deadline (null last) or creation
+    const sortTasks = (arr) => arr.sort((a, b) => {
+      if (a.deadline && b.deadline) return a.deadline.localeCompare(b.deadline);
+      if (a.deadline) return -1;
+      if (b.deadline) return 1;
+      return b.createdAt - a.createdAt;
+    });
+    sortTasks(pending);
+    sortTasks(completed);
+
+    let html = `
+      <div class="page-title">📋 Tasks</div>
+      <div class="card">
+        <h3 style="margin-bottom: 12px; font-weight: 500; color:#2c4a2e;">New task</h3>
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" id="taskTitle" placeholder="e.g. Prepare proposal" maxlength="60">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="taskDesc" placeholder="optional"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Deadline</label>
+          <input type="date" id="taskDeadline">
+        </div>
+        <div class="form-group">
+          <label>Mission *</label>
+          <select id="taskMission">
+            ${state.missions.map(m => `<option value="${m.id}">${escapeHtml(m.name)}</option>`).join('')}
+          </select>
+        </div>
+        <button class="btn-soft" id="addTaskBtn" style="width:100%; padding:14px;">+ Add task</button>
+      </div>
+
+      <h3 style="margin: 16px 0 8px; color:#2c4a2e;">Pending (${pending.length})</h3>
+      <div class="card" style="padding: 4px 16px;">
+    `;
+    if (pending.length === 0) {
+      html += `<div class="empty-message">All caught up. Add a new task above.</div>`;
+    } else {
+      pending.forEach(task => {
+        const missionName = missionMap[task.missionId] || 'General';
+        html += `
+          <div class="task-item" style="align-items: center;">
+            <div class="task-check" data-task-id="${task.id}" data-complete="true"></div>
+            <div class="task-info" style="flex:1;">
+              <div class="task-title">${escapeHtml(task.title)}</div>
+              <div class="task-meta">
+                <span class="mission-badge">${escapeHtml(missionName)}</span>
+                ${task.deadline ? `<span>📅 ${task.deadline}</span>` : ''}
+              </div>
+            </div>
+            <button class="icon-btn" data-edit-id="${task.id}">✏️</button>
+            <button class="icon-btn" data-delete-id="${task.id}">🗑️</button>
+          </div>
+        `;
+      });
+    }
+    html += `</div>`;
+
+    html += `<h3 style="margin: 20px 0 8px; color:#2c4a2e;">Completed (${completed.length})</h3>
+      <div class="card" style="padding: 4px 16px;">`;
+    if (completed.length === 0) {
+      html += `<div class="empty-message">No completed tasks yet.</div>`;
+    } else {
+      completed.forEach(task => {
+        const missionName = missionMap[task.missionId] || 'General';
+        html += `
+          <div class="task-item" style="opacity:0.8;">
+            <div class="task-check completed" data-task-id="${task.id}" data-complete="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>
+            </div>
+            <div class="task-info">
+              <div class="task-title" style="text-decoration: line-through; color:#8b9a7e;">${escapeHtml(task.title)}</div>
+              <div class="task-meta"><span class="mission-badge">${escapeHtml(missionName)}</span></div>
+            </div>
+            <button class="icon-btn" data-delete-id="${task.id}">🗑️</button>
+          </div>
+        `;
+      });
+    }
+    html += `</div>`;
+
+    container.innerHTML = html;
+
+    // add task
+    document.getElementById('addTaskBtn').addEventListener('click', () => {
+      const title = document.getElementById('taskTitle').value.trim();
+      const desc = document.getElementById('taskDesc').value.trim();
+      const deadline = document.getElementById('taskDeadline').value;
+      const missionId = document.getElementById('taskMission').value;
+      if (!title) return alert('Task title is required.');
+      const newTask = {
+        id: 't' + Date.now() + Math.random().toString(36).substr(2, 5),
+        title,
+        description: desc,
+        deadline: deadline || null,
+        missionId,
+        completed: false,
+        createdAt: Date.now(),
+      };
+      state.tasks.push(newTask);
+      saveState();
+      renderApp();
+    });
+
+    // complete/pending toggle (only pending tasks have data-complete="true")
+    document.querySelectorAll('.task-check[data-complete="true"]').forEach(check => {
+      check.addEventListener('click', (e) => {
+        const taskId = check.dataset.taskId;
+        completeTask(taskId);
+      });
+    });
+
+    // delete task
+    document.querySelectorAll('[data-delete-id]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = btn.dataset.deleteId;
+        if (confirm('Delete this task?')) {
+          state.tasks = state.tasks.filter(t => t.id !== id);
+          syncCompletedCountFromTasks();
+          saveState();
+          renderApp();
+        }
+      });
+    });
+
+    // edit task (simple prompt-based for simplicity)
+    document.querySelectorAll('[data-edit-id]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = btn.dataset.editId;
+        const task = state.tasks.find(t => t.id === id);
+        if (!task) return;
+        const newTitle = prompt('Edit task title:', task.title);
+        if (newTitle === null) return;
+        const trimmed = newTitle.trim();
+        if (!trimmed) return alert('Title cannot be empty.');
+        task.title = trimmed;
+        const newDesc = prompt('Edit description:', task.description || '');
+        if (newDesc !== null) task.description = newDesc;
+        saveState();
+        renderApp();
+      });
+    });
+  }
+
+  // ---------- MISSIONS PAGE ----------
+  function renderMissions(container) {
+    let html = `<div class="page-title">🏔️ Missions</div>`;
+    // add mission form (max 5)
+    if (state.missions.length < 5) {
+      html += `
+        <div class="card">
+          <h3 style="margin-bottom: 12px; font-weight: 500; color:#2c4a2e;">Add mission</h3>
+          <div class="form-group">
+            <label>Mission name *</label>
+            <input type="text" id="missionName" placeholder="e.g. Health & Fitness" maxlength="40">
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="missionDesc" placeholder="optional"></textarea>
+          </div>
+          <button class="btn-soft" id="addMissionBtn" style="width:100%;">+ Add mission</button>
+        </div>
+      `;
+    } else {
+      html += `<div class="card" style="text-align:center; color:#8b9a7e;">Maximum 5 missions reached.</div>`;
+    }
+
+    html += `<div class="mission-list">`;
+    state.missions.forEach(mission => {
+      const total = state.tasks.filter(t => t.missionId === mission.id).length;
+      const completed = state.tasks.filter(t => t.missionId === mission.id && t.completed).length;
+      const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+      html += `
+        <div class="mission-card">
+          <div style="display:flex; justify-content:space-between;">
+            <h3 style="color:#2d5e3b; font-size:18px;">${escapeHtml(mission.name)}</h3>
+            <div>
+              <button class="icon-btn" data-edit-mission="${mission.id}">✏️</button>
+            </div>
+          </div>
+          <p style="color:#6b7d63; font-size:14px; margin: 8px 0 12px;">${escapeHtml(mission.description || '')}</p>
+          <div style="display:flex; justify-content:space-between; font-size:13px; color:#5f7358;">
+            <span>Tasks: ${total}</span>
+            <span>Completed: ${completed}</span>
+            <span>${percent}%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${percent}%;"></div></div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+    container.innerHTML = html;
+
+    // add mission
+    const addBtn = document.getElementById('addMissionBtn');
+    if (addBtn) {
+      addBtn.addEventListener('click', () => {
+        const name = document.getElementById('missionName').value.trim();
+        const desc = document.getElementById('missionDesc').value.trim();
+        if (!name) return alert('Mission name is required.');
+        if (state.missions.length >= 5) return alert('Maximum 5 missions allowed.');
+        const newMission = {
+          id: 'm' + Date.now() + Math.random().toString(36).substr(2, 4),
+          name,
+          description: desc,
+        };
+        state.missions.push(newMission);
+        saveState();
+        renderApp();
+      });
+    }
+
+    // edit mission
+    document.querySelectorAll('[data-edit-mission]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = btn.dataset.editMission;
+        const mission = state.missions.find(m => m.id === id);
+        if (!mission) return;
+        const newName = prompt('Edit mission name:', mission.name);
+        if (newName === null) return;
+        const trimmed = newName.trim();
+        if (!trimmed) return alert('Name cannot be empty.');
+        mission.name = trimmed;
+        const newDesc = prompt('Edit description:', mission.description || '');
+        if (newDesc !== null) mission.description = newDesc;
+        saveState();
+        renderApp();
+      });
+    });
+  }
+
+  // ---------- CORE ACTIONS ----------
+  function completeTask(taskId) {
+    const task = state.tasks.find(t => t.id === taskId && !t.completed);
+    if (!task) return;
+    task.completed = true;
+    syncCompletedCountFromTasks();
+    saveState();
+    renderApp();
+  }
+
+  function undoLastCompletion() {
+    // find most recently completed task (based on maybe completedAt? we don't store)
+    // for simplicity, just take any completed task (the last one in array that is completed)
+    const completedTasks = state.tasks.filter(t => t.completed);
+    if (completedTasks.length === 0) return;
+    // pick the last completed task (most recent in insertion order)
+    const lastCompleted = completedTasks[completedTasks.length - 1];
+    lastCompleted.completed = false;
+    syncCompletedCountFromTasks();
+    saveState();
+    renderApp();
+  }
+
+  // helper escape
+  function escapeHtml(text) {
+    if (!text) return '';
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+  }
+
+  // ---------- NAVIGATION ----------
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentPage = btn.dataset.page;
+      renderApp();
+    });
+  });
+
+  // ---------- INIT ----------
+  loadState();
+  // ensure completedCount is synced
+  syncCompletedCountFromTasks();
+  saveState();
+  renderApp();
+</script>
+</body>
+</html>
